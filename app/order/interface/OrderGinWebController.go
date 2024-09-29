@@ -40,7 +40,7 @@ func NewOrderGinWebController(router *gin.RouterGroup) order_domain.IOrderContro
 
 		orderGinWebControllerInstance = &OrderGinWebController{}
 		orderGinWebControllerInstance.orderBusiness = order_business.NewOrderBusiness(orderPostgresRepo, packPostgresRepo)
-		orderGinWebControllerInstance.packBusiness = pack_business.NewPackBusiness(packPostgresRepo)
+		orderGinWebControllerInstance.packBusiness = pack_business.NewPackBusiness(orderPostgresRepo, packPostgresRepo)
 
 		orderGinWebControllerInstance.SetRoutes(router)
 	})

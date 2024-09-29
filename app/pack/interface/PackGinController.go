@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	db "github.com/CamiloC-pvt/re-challenge/app/db"
+	order_infraestructure "github.com/CamiloC-pvt/re-challenge/app/order/infraestructure"
 	pack_business "github.com/CamiloC-pvt/re-challenge/app/pack/business"
 	pack_domain "github.com/CamiloC-pvt/re-challenge/app/pack/domain"
 	pack_infraestructure "github.com/CamiloC-pvt/re-challenge/app/pack/infraestructure"
@@ -29,10 +30,11 @@ func NewPackController(router *gin.RouterGroup) pack_domain.IPackController {
 	packGinControllerOnce.Do(func() {
 		postgresConnection := db.NewPostgresConnection()
 
+		orderPostgresRepo := order_infraestructure.NewOrderPostgresRepo(postgresConnection)
 		packPostgresRepo := pack_infraestructure.NewPackPostgresRepo(postgresConnection)
 
 		packGinControllerInstance = &PackGinController{}
-		packGinControllerInstance.packBusiness = pack_business.NewPackBusiness(packPostgresRepo)
+		packGinControllerInstance.packBusiness = pack_business.NewPackBusiness(orderPostgresRepo, packPostgresRepo)
 
 		packGinControllerInstance.SetRoutes(router)
 	})

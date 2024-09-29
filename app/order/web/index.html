@@ -87,19 +87,19 @@
                     'Content-Type': 'application/json',
                 }
             }).then(response => {
-                console.log(`[DEBUG] Create order response: `, response)
-
-                if (!response.ok) {
-                    throw new Error('Network error')
-                }
+                console.log(`[DEBUG] Delete order response: `, response)
 
                 return response.json();
             }).then(resData => {
-                console.log(`[DEBUG] Create order API response: `, resData)
+                console.log(`[DEBUG] Delete order API response: `, resData)
 
-                location.reload()
+                if (resData.error) {
+                    alert(`There was an error deleting the order: ${resData.error}`)
+                } else {
+                    location.reload()
+                }
             }).catch(err => {
-                console.log(`[DEBUG] Create order API error: `, err)
+                console.log(`[DEBUG] Delete order API error: `, err)
 
                 alert(`There was an error deleting the order with ID '${orderID}': `, err)
             })
@@ -114,19 +114,19 @@
                     'Content-Type': 'application/json',
                 }
             }).then(response => {
-                console.log(`[DEBUG] Create pack response: `, response)
-
-                if (!response.ok) {
-                    throw new Error('Network error')
-                }
+                console.log(`[DEBUG] Delete pack response: `, response)
 
                 return response.json();
             }).then(resData => {
-                console.log(`[DEBUG] Create pack API response: `, resData)
+                console.log(`[DEBUG] Delete pack API response: `, resData)
 
-                location.reload()
+                if (resData.error) {
+                    alert(`There was an error deleting the pack: ${resData.error}`)
+                } else {
+                    location.reload()
+                }
             }).catch(err => {
-                console.log(`[DEBUG] Create pack API error: `, err)
+                console.log(`[DEBUG] Delete pack API error: `, err)
 
                 alert(`There was an error deleting the pack with ID '${packID}': `, err)
             })
@@ -135,7 +135,7 @@
 
     <button type="button" class="btn-floating btn btn-success" data-bs-toggle="modal" data-bs-target="#addOrderModal"
         style="z-index: 1000;">
-        <i class="fa-solid fa-plus"></i>
+        <i class="fa-solid fa-cart-shopping"></i>
     </button>
 
     <button type="button" class="btn btn-floating-left btn btn-warning" data-bs-toggle="popover" data-bs-html="true"
@@ -320,15 +320,15 @@
                 }).then(response => {
                     console.log(`[DEBUG] Create pack response: ${response}`)
 
-                    if (!response.ok) {
-                        throw new Error('Network error')
-                    }
-
                     return response.json();
                 }).then(resData => {
                     console.log(`[DEBUG] Create pack API response: `, resData)
 
-                    location.reload()
+                    if (resData.error) {
+                        alert(`There was an error creating the pack: ${resData.error}`)
+                    } else {
+                        location.reload()
+                    }
                 }).catch(err => {
                     console.log(`[DEBUG] Create pack API error: ${err}`)
                 })
@@ -349,19 +349,21 @@
                         'Content-Type': 'application/json',
                     }
                 }).then(response => {
-                    console.log(`[DEBUG] Create order response: ${response}`)
-
-                    if (!response.ok) {
-                        throw new Error('Network error')
-                    }
+                    console.log(`[DEBUG] Create order response: `, response)
 
                     return response.json();
                 }).then(resData => {
                     console.log(`[DEBUG] Create order API response: `, resData)
 
-                    location.reload()
+                    if (resData.error) {
+                        alert(`There was an error creating the order: ${resData.error}`)
+                    } else {
+                        location.reload()
+                    }
                 }).catch(err => {
-                    console.log(`[DEBUG] Create order API error: ${err}`)
+                    console.log(`[DEBUG] Create order API error: `, err)
+
+                    alert(`There was an error creating the order: `, err)
                 })
             }
         })

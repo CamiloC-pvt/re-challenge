@@ -1,6 +1,7 @@
 package business
 
 import (
+	"errors"
 	"fmt"
 	"sort"
 	"sync"
@@ -113,11 +114,9 @@ func (b *OrderBusiness) Create(size int32) (order_domain.Order, error) {
 		return order_domain.Order{}, fmt.Errorf("error getting the available package sizes: %s", err.Error())
 	}
 
-	// ----------
-
-	b.CalculatePackaging(dbPacks, size)
-
-	// ----------
+	if len(dbPacks) == 0 {
+		return order_domain.Order{}, errors.New("cannot create any order because there are no Package sizes available, please create at least 1 first")
+	}
 
 	// Packaging Calculation
 	orderPacks := b.CalculatePackaging(dbPacks, size)

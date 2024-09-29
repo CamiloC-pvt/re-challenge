@@ -75,3 +75,17 @@ func (b *PackPostgresRepo) GetAll() ([]pack_domain.Pack, error) {
 
 	return packs, nil
 }
+
+func (b *PackPostgresRepo) GetByID(id int32) (pack_domain.Pack, error) {
+	ctx := context.Background()
+
+	row := b.postgresConnection.Connection.QueryRow(ctx, fmt.Sprintf("SELECT p.id, p.size, p.created FROM pack_size p WHERE id = %d;", id))
+
+	var pack pack_domain.Pack = pack_domain.Pack{}
+	err := row.Scan(&pack.ID, &pack.Size, &pack.Created)
+	if err != nil {
+		return pack_domain.Pack{}, err
+	}
+
+	return pack, nil
+}

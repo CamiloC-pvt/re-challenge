@@ -122,3 +122,6 @@ Delete an order by it's ID
     "response": "Done"
 }
 ```
+
+# License
+This project was completely developed by Camilo Andres Carrillo Niño, it's usage is strictly limited to the screening process for Re Partners company, it's code cannot be used for any other personal or commercial purpose.

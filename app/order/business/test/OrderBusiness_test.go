@@ -96,9 +96,58 @@ func TestCalculatePackaging_Others(t *testing.T) {
 			{Amount: 1, Size: 1000},
 		},
 		800006: {
-			{Amount: 61, Size: 13001},
-			{Amount: 1, Size: 5000},
+			{Amount: 6, Size: 13001},
+			{Amount: 144, Size: 5000},
 			{Amount: 1, Size: 2000},
+		},
+	}
+
+	// Result Check
+	comparePacks := func(a, b []order_domain.OrderPack) bool {
+		same := true
+
+		for _, aP := range a {
+			found := false
+
+			for _, bP := range b {
+				if aP.Amount == bP.Amount && aP.Size == bP.Size {
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				same = false
+				break
+			}
+		}
+
+		return same
+	}
+
+	// Run
+	business := order_business.NewOrderBusiness(nil, nil)
+
+	for sizeToTest, testResult := range testCasesMap {
+		result := business.CalculatePackaging(testPackList, sizeToTest)
+
+		if !comparePacks(result, testResult) {
+			t.Errorf("Obtained packs for '%d' are '%+v', expected was: %+v", sizeToTest, result, testResult)
+		}
+	}
+}
+
+func TestCalculatePackaging_ExtraSuggested(t *testing.T) {
+	// Packages
+	testPackList := []pack_domain.Pack{
+		{Size: 5},
+		{Size: 12},
+	}
+
+	// Test Cases
+	testCasesMap := map[int32][]order_domain.OrderPack{
+		15: {
+			{Amount: 3, Size: 5},
 		},
 	}
 

@@ -3,6 +3,7 @@ package business
 import (
 	"errors"
 	"fmt"
+	"math"
 	"sort"
 	"sync"
 
@@ -28,14 +29,6 @@ func NewOrderBusiness(orderRepo order_domain.IOrderRepo, packRepo pack_domain.IP
 	})
 
 	return orderBusinessInstance
-}
-
-func NewOrderBusiness_Mock(orderRepo order_domain.IOrderRepo, packRepo pack_domain.IPackRepo) order_domain.IOrderBusiness {
-	orderBusinessMock := &OrderBusiness{}
-	orderBusinessMock.orderRepo = orderRepo
-	orderBusinessMock.packRepo = packRepo
-
-	return orderBusinessMock
 }
 
 func (b *OrderBusiness) CalculatePackaging(availablePacks []pack_domain.Pack, size int32) []order_domain.OrderPack {
@@ -68,6 +61,54 @@ func (b *OrderBusiness) CalculatePackaging(availablePacks []pack_domain.Pack, si
 		})
 	}
 
+	// Optimizing Items Amount
+	for i := 0; i < len(orderPacks); i++ {
+		checkEnd := false
+		for !checkEnd && totalShiped > size {
+			orderPack := orderPacks[i]
+
+			if orderPack.Amount == 0 || i+1 == len(orderPacks) {
+				checkEnd = true
+				break
+			}
+
+			for j := i + 1; j < len(orderPacks); j++ {
+				nextOrderPack := orderPacks[j]
+
+				maxFound := false
+				maxToReplace := int32(orderPack.Amount)
+				for !maxFound && maxToReplace > 0 {
+					maxNextPackPerCurrent := math.Floor(float64(orderPack.Size*maxToReplace) / float64(nextOrderPack.Size))
+
+					current := (orderPack.Amount * orderPack.Size) + (nextOrderPack.Amount * nextOrderPack.Size)
+					possible := ((orderPack.Amount - maxToReplace) * orderPack.Size) + ((nextOrderPack.Amount + int32(maxNextPackPerCurrent)) * nextOrderPack.Size)
+
+					possibleTotal := totalShiped - current + possible
+
+					if current > possible && possibleTotal >= size {
+						orderPacks[i].Amount -= maxToReplace
+						orderPacks[j].Amount += int32(maxNextPackPerCurrent)
+
+						totalShiped = possibleTotal
+
+						maxFound = true
+						break
+					}
+
+					maxToReplace--
+				}
+
+				if maxFound {
+					break
+				}
+
+				if j+1 == len(orderPacks) {
+					checkEnd = true
+				}
+			}
+		}
+	}
+
 	// Optimizing Package Amount
 	for i := len(orderPacks) - 1; i >= 0; i-- {
 		if i-1 < 0 {
@@ -81,7 +122,8 @@ func (b *OrderBusiness) CalculatePackaging(availablePacks []pack_domain.Pack, si
 			current := (orderPack.Amount * orderPack.Size) + (prevOrderPack.Amount * prevOrderPack.Size)
 			possible := (prevOrderPack.Amount + 1) * prevOrderPack.Size
 
-			if possible <= current && (totalShiped-(current-possible)) >= size {
+			possibleTotal := totalShiped - (current - possible)
+			if possible <= current && possibleTotal >= size {
 				totalShiped -= (current - possible)
 
 				orderPacks[i-1].Amount++
